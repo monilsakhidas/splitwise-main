@@ -8,6 +8,8 @@ const connection = require("./kafka/connection");
 const {
   USER_LOGIN,
   USER_SIGNUP,
+  GET_USER_PROFILE,
+  UPDATE_USER_PROFILE,
   GET_ALL_CURRENCIES,
 } = require("./kafka/topics");
 
@@ -16,7 +18,12 @@ const {
 // Users
 const userLogin = require("./services/users/userLogin");
 const userSignup = require("./services/users/userSignup");
+const userProfileGet = require("./services/users/userProfileGet");
+const userProfileUpdate = require("./services/users/userProfileUpdate");
 // Groups
+
+// Currencies
+const getAllCurrencies = require("./services/masters/getAllCurrencies");
 
 // MongoDB Connection
 const mongoose = require("./configuration/database");
@@ -56,3 +63,6 @@ function handleTopicRequest(topic_name, fname) {
 //second argument is a function that will handle this topic request
 handleTopicRequest(USER_SIGNUP, userSignup);
 handleTopicRequest(USER_LOGIN, userLogin);
+handleTopicRequest(GET_USER_PROFILE, userProfileGet);
+handleTopicRequest(UPDATE_USER_PROFILE, userProfileUpdate);
+handleTopicRequest(GET_ALL_CURRENCIES, getAllCurrencies);

@@ -19,6 +19,21 @@ const userSchema = new Schema(
       default: config.defaultCurrencyId,
       required: true,
     },
+    timezone: {
+      type: String,
+      trim: true,
+      default: "America/Los_Angeles",
+      required: true,
+    },
+    language: {
+      type: String,
+      trim: true,
+      default: "en",
+      required: true,
+    },
+    image: {
+      type: String,
+    },
   },
   {
     timestamps: true,
