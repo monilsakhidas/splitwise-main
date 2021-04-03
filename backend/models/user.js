@@ -34,6 +34,18 @@ const userSchema = new Schema(
     image: {
       type: String,
     },
+    invites: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Group",
+      },
+    ],
+    memberships: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Group",
+      },
+    ],
   },
   {
     timestamps: true,

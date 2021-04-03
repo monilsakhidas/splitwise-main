@@ -11,6 +11,14 @@ const {
   GET_USER_PROFILE,
   UPDATE_USER_PROFILE,
   GET_ALL_CURRENCIES,
+  SEARCH_USERS,
+  GROUP_CREATE,
+  GROUP_UPDATE_DETAILS,
+  SEARCH_GROUPS,
+  GET_GROUP_DETAILS,
+  GROUP_ACCEPT_INVITATION,
+  GROUP_DECLINE_INVITATION,
+  GET_USER_INVITATIONS,
 } = require("./kafka/topics");
 
 // Topics
@@ -20,10 +28,19 @@ const userLogin = require("./services/users/userLogin");
 const userSignup = require("./services/users/userSignup");
 const userProfileGet = require("./services/users/userProfileGet");
 const userProfileUpdate = require("./services/users/userProfileUpdate");
+const userInvitationsGet = require("./services/users/userInvitationsGet");
 // Groups
-
+const groupCreate = require("./services/groups/createGroup");
+const groupUpdate = require("./services/groups/updateGroupDetails");
+const myGroups = require("./services/groups/myGroups");
+const getGroupDetails = require("./services/groups/getGroupDetails");
+const groupAcceptInvitation = require("./services/groups/acceptInvitation");
+const groupDeclineInvitation = require("./services/groups/declineInvitation");
 // Currencies
 const getAllCurrencies = require("./services/masters/getAllCurrencies");
+
+// Search
+const searchUsers = require("./services/search/searchUsers");
 
 // MongoDB Connection
 const mongoose = require("./configuration/database");
@@ -66,3 +83,11 @@ handleTopicRequest(USER_LOGIN, userLogin);
 handleTopicRequest(GET_USER_PROFILE, userProfileGet);
 handleTopicRequest(UPDATE_USER_PROFILE, userProfileUpdate);
 handleTopicRequest(GET_ALL_CURRENCIES, getAllCurrencies);
+handleTopicRequest(SEARCH_USERS, searchUsers);
+handleTopicRequest(GROUP_CREATE, groupCreate);
+handleTopicRequest(GROUP_UPDATE_DETAILS, groupUpdate);
+handleTopicRequest(SEARCH_GROUPS, myGroups);
+handleTopicRequest(GET_GROUP_DETAILS, getGroupDetails);
+handleTopicRequest(GROUP_ACCEPT_INVITATION, groupAcceptInvitation);
+handleTopicRequest(GROUP_DECLINE_INVITATION, groupDeclineInvitation);
+handleTopicRequest(GET_USER_INVITATIONS, userInvitationsGet);

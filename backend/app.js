@@ -11,6 +11,8 @@ const mongoose = require("./configuration/database");
 const models = require("./models/modelsStore");
 const users = require("./users/routes");
 const masters = require("./masters/routes");
+const search = require("./search/routes");
+const groups = require("./groups/routes");
 const { initializePassport } = require("./configuration/passport");
 // Port number
 const PORT = process.env.PORT || 3001;
@@ -49,6 +51,8 @@ app.use(function (req, res, next) {
 // Adding the routes
 app.use("/users", users);
 app.use("/masters", masters);
+app.use("/search", search);
+app.use("/groups", groups);
 
 // Starting the server
 app.listen(PORT, () => {

@@ -11,6 +11,7 @@ const config = {
     uniqueKeyConstraintError: 11000,
   },
   kafkaZookeeperUrl: "localhost:2181",
+  searchLimit: 10,
 };
 
 module.exports = config;

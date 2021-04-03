@@ -15,6 +15,7 @@ const {
   USER_SIGNUP,
   GET_USER_PROFILE,
   UPDATE_USER_PROFILE,
+  GET_USER_INVITATIONS,
 } = require("../kafka/topics");
 
 // Initializing Router
@@ -253,5 +254,39 @@ router.put(
     });
   }
 );
+
+// Get all the groups user is invited to
+router.get("/invitations", requireSignIn, async (req, res) => {
+  kafka.make_request(
+    GET_USER_INVITATIONS,
+    { user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+  // // Finding all groups whose user is a member of
+  // const groupMemberships = await models.members.findAll({
+  //   where: { userId: req.user.id, status: status.inviteSent },
+  // });
+  // // Extracting all the groupIds
+  // const groupIds = await groupMemberships.map((groupMembership) => {
+  //   return groupMembership.groupId;
+  // });
+  // // Querying group objects from db based on the groupIds
+  // const groups = await models.groups.findAll({
+  //   attributes: ["id", "name", "createdAt", "createdBy", "image"],
+  //   order: [["createdAt", "DESC"]],
+  //   where: {
+  //     id: {
+  //       [Op.in]: groupIds,
+  //     },
+  //   },
+  // });
+  // res.status(200).send({ groups });
+});
 
 module.exports = router;
