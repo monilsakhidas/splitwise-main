@@ -31,5 +31,5 @@ const debtSchema = new Schema(
   { timestamps: true, versionKey: false }
 );
 
-const Debt = mongoose.model("Debt", activitySchema, "debts");
+const Debt = mongoose.model("Debt", debtSchema, "debts");
 module.exports = Debt;
