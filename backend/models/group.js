@@ -1,4 +1,5 @@
 const config = require("../configuration/config");
+const groupBalanceSchema = require("./groupBalance");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -24,6 +25,13 @@ const groupSchema = new Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
+      },
+    ],
+    groupBalances: [groupBalanceSchema],
+    expenses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Expense",
       },
     ],
   },

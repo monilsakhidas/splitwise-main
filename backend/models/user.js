@@ -46,6 +46,12 @@ const userSchema = new Schema(
         ref: "Group",
       },
     ],
+    activities: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Activity",
+      },
+    ],
   },
   {
     timestamps: true,
