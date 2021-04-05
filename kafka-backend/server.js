@@ -19,6 +19,7 @@ const {
   GROUP_ACCEPT_INVITATION,
   GROUP_DECLINE_INVITATION,
   GET_USER_INVITATIONS,
+  GROUP_ADD_EXPENSE,
 } = require("./kafka/topics");
 
 // Topics
@@ -36,6 +37,7 @@ const myGroups = require("./services/groups/myGroups");
 const getGroupDetails = require("./services/groups/getGroupDetails");
 const groupAcceptInvitation = require("./services/groups/acceptInvitation");
 const groupDeclineInvitation = require("./services/groups/declineInvitation");
+const groupAddExpense = require("./services/groups/addExpense");
 // Currencies
 const getAllCurrencies = require("./services/masters/getAllCurrencies");
 
@@ -91,3 +93,4 @@ handleTopicRequest(GET_GROUP_DETAILS, getGroupDetails);
 handleTopicRequest(GROUP_ACCEPT_INVITATION, groupAcceptInvitation);
 handleTopicRequest(GROUP_DECLINE_INVITATION, groupDeclineInvitation);
 handleTopicRequest(GET_USER_INVITATIONS, userInvitationsGet);
+handleTopicRequest(GROUP_ADD_EXPENSE, groupAddExpense);

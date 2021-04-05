@@ -11,7 +11,9 @@ const {
   GROUP_DECLINE_INVITATION,
   GET_GROUP_DETAILS,
   SEARCH_GROUPS,
+  GROUP_ADD_EXPENSE,
 } = require("../kafka/topics");
+const ObjectId = require("mongoose").Types.ObjectId;
 const router = express.Router();
 
 // Init storage
@@ -212,6 +214,52 @@ router.post("/reject", requireSignIn, async (req, res) => {
   }
   kafka.make_request(
     GROUP_DECLINE_INVITATION,
+    { body: req.body, user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Add an expense
+router.post("/addexpense", requireSignIn, async (req, res) => {
+  // Constructing a schema to validate input
+  const schema = Joi.object({
+    description: Joi.string().min(1).max(64).required().empty().messages({
+      "string.base": "Enter a valid string as description.",
+      "string.min": "Enter a valid description.",
+      "string.max": "Enter a description in less than 64 characters.",
+      "any.required": "Enter a valid description.",
+      "string.empty": "Enter a valid description.",
+    }),
+    group_id: Joi.string().required().messages({
+      "string.base": "Select a valid group for adding expense.",
+      "any.required": "Select a valid group for adding expense.",
+      "string.empty": "Select a valid group for adding expense.",
+    }),
+    amount: Joi.number().positive().required().messages({
+      "number.positive": "Enter a valid amount.",
+      "number.base": "Enter a valid amount.",
+      "any.required": "Enter a valid amount.",
+    }),
+  });
+  // Validating the input object
+  const result = await schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  if (!ObjectId.isValid(req.body.group_id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+
+  kafka.make_request(
+    GROUP_ADD_EXPENSE,
     { body: req.body, user: req.user },
     (error, results) => {
       if (!results.success) {
