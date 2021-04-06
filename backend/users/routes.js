@@ -8,6 +8,7 @@ const config = require("../configuration/config");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const ObjectId = require("mongoose").Types.ObjectId;
 const kafka = require("../kafka/client");
 const { requireSignIn } = require("../configuration/passport");
 const {
@@ -16,6 +17,9 @@ const {
   GET_USER_PROFILE,
   UPDATE_USER_PROFILE,
   GET_USER_INVITATIONS,
+  GET_USER_SETTLE_UP_LIST,
+  SETTLE_UP_WITH_A_USER,
+  GET_RECENT_ACTIVITY,
 } = require("../kafka/topics");
 
 // Initializing Router
@@ -268,25 +272,105 @@ router.get("/invitations", requireSignIn, async (req, res) => {
       }
     }
   );
-  // // Finding all groups whose user is a member of
-  // const groupMemberships = await models.members.findAll({
-  //   where: { userId: req.user.id, status: status.inviteSent },
-  // });
-  // // Extracting all the groupIds
-  // const groupIds = await groupMemberships.map((groupMembership) => {
-  //   return groupMembership.groupId;
-  // });
-  // // Querying group objects from db based on the groupIds
-  // const groups = await models.groups.findAll({
-  //   attributes: ["id", "name", "createdAt", "createdBy", "image"],
-  //   order: [["createdAt", "DESC"]],
-  //   where: {
-  //     id: {
-  //       [Op.in]: groupIds,
-  //     },
-  //   },
-  // });
-  // res.status(200).send({ groups });
 });
 
+// Get Users list for settleUp API
+router.get("/settle", requireSignIn, async (req, res) => {
+  kafka.make_request(
+    GET_USER_SETTLE_UP_LIST,
+    { user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Settle up API
+router.post("/settle", requireSignIn, async (req, res) => {
+  // Construct a schema
+  const schema = Joi.object({
+    _id: Joi.string().required().messages({
+      "any.required": "Select a user to settle the balance.",
+      "string.base": "Select a valid user.",
+      "string.empty": "Select a valid user.",
+    }),
+  });
+  // Validate the input data
+  const result = await schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  if (!ObjectId.isValid(req.body._id)) {
+    res.status(400).send({ errorMessage: "Select a valid user." });
+    return;
+  }
+
+  kafka.make_request(
+    SETTLE_UP_WITH_A_USER,
+    { body: req.body, user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+router.get("/activity", requireSignIn, async (req, res) => {
+  // Construct schema
+  const schema = Joi.object({
+    // 1 -> DESC, 2 -> ASC
+    orderBy: Joi.number().integer().min(1).max(2).messages({
+      "number.integer": "Select a valid sorting category",
+      "number.min": "Select a valid sorting category",
+      "number.max": "Select a valid sorting category",
+      "number.base": "Select a valid sorting category",
+    }),
+    pageNumber: Joi.number().integer().min(1).required().messages({
+      "number.integer": "Select a valid page number",
+      "number.min": "Select a valid page number",
+      "number.base": "Select a valid page number",
+      "any.required": "Select a valid page number",
+    }),
+    pageSize: Joi.number().integer().min(1).messages({
+      "number.integer": "Select a valid page size",
+      "number.min": "Select a valid page size",
+      "number.base": "Select a valid page size",
+    }),
+    // 0 groupId means across all groups
+    group_id: Joi.string().messages({
+      "string.base": "Select a valid group",
+      "string.integer": "Select a valid group",
+      "number.min": "Select a valid group",
+    }),
+  });
+  // Validating schema for the input fields
+  const result = await schema.validate(req.query);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  if (req.query.group_id && !ObjectId.isValid(req.query.group_id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+  kafka.make_request(
+    GET_RECENT_ACTIVITY,
+    { user: req.user, query: req.query },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
 module.exports = router;

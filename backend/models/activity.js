@@ -22,6 +22,11 @@ const activitySchema = new Schema(
       ref: "User",
       required: true,
     },
+    group: {
+      type: Schema.Types.ObjectId,
+      ref: "Group",
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );

@@ -12,6 +12,7 @@ const config = {
   },
   kafkaZookeeperUrl: "localhost:2181",
   searchLimit: 10,
+  defaultPageSize: 2,
 };
 
 module.exports = config;

@@ -20,6 +20,14 @@ const {
   GROUP_DECLINE_INVITATION,
   GET_USER_INVITATIONS,
   GROUP_ADD_EXPENSE,
+  GET_USER_SETTLE_UP_LIST,
+  SETTLE_UP_WITH_A_USER,
+  GET_GROUP_BALANCES,
+  GET_GROUP_DEBTS,
+  GET_GROUP_EXPENSES,
+  GET_RECENT_ACTIVITY,
+  ADD_COMMENTS_EXPENSE,
+  DELETE_COMMENT_EXPENSE,
 } = require("./kafka/topics");
 
 // Topics
@@ -30,6 +38,9 @@ const userSignup = require("./services/users/userSignup");
 const userProfileGet = require("./services/users/userProfileGet");
 const userProfileUpdate = require("./services/users/userProfileUpdate");
 const userInvitationsGet = require("./services/users/userInvitationsGet");
+const userSettleUpListGet = require("./services/users/userSettleUpList");
+const userSettleUp = require("./services/users/userSettleUp");
+const userRecentActivityGet = require("./services/users/userRecentActivityGet");
 // Groups
 const groupCreate = require("./services/groups/createGroup");
 const groupUpdate = require("./services/groups/updateGroupDetails");
@@ -38,6 +49,11 @@ const getGroupDetails = require("./services/groups/getGroupDetails");
 const groupAcceptInvitation = require("./services/groups/acceptInvitation");
 const groupDeclineInvitation = require("./services/groups/declineInvitation");
 const groupAddExpense = require("./services/groups/addExpense");
+const groupBalancesGet = require("./services/groups/groupBalancesGet");
+const groupDebtsGet = require("./services/groups/groupDebtsGet");
+const groupExpensesGet = require("./services/groups/groupExpensesGet");
+const groupExpenseCommentAdd = require("./services/groups/addComment");
+const groupExpenseCommentRemove = require("./services/groups/removeComment");
 // Currencies
 const getAllCurrencies = require("./services/masters/getAllCurrencies");
 
@@ -94,3 +110,11 @@ handleTopicRequest(GROUP_ACCEPT_INVITATION, groupAcceptInvitation);
 handleTopicRequest(GROUP_DECLINE_INVITATION, groupDeclineInvitation);
 handleTopicRequest(GET_USER_INVITATIONS, userInvitationsGet);
 handleTopicRequest(GROUP_ADD_EXPENSE, groupAddExpense);
+handleTopicRequest(GET_USER_SETTLE_UP_LIST, userSettleUpListGet);
+handleTopicRequest(SETTLE_UP_WITH_A_USER, userSettleUp);
+handleTopicRequest(GET_GROUP_BALANCES, groupBalancesGet);
+handleTopicRequest(GET_GROUP_DEBTS, groupDebtsGet);
+handleTopicRequest(GET_GROUP_EXPENSES, groupExpensesGet);
+handleTopicRequest(GET_RECENT_ACTIVITY, userRecentActivityGet);
+handleTopicRequest(ADD_COMMENTS_EXPENSE, groupExpenseCommentAdd);
+handleTopicRequest(DELETE_COMMENT_EXPENSE, groupExpenseCommentRemove);

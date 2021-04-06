@@ -45,7 +45,8 @@ const handle_request = async (req, callback) => {
     if (!group.expenses) {
       group.expenses = [expense._id];
     } else {
-      group.expenses = [expense._id, ...group.expenses];
+      // group.expenses = [expense._id, ...group.expenses];
+      group.expenses.push(expense._id);
     }
 
     // Find all the members of the group except the user who paid the amount
@@ -183,7 +184,7 @@ const handle_request = async (req, callback) => {
       if (tempUser.activities == null) {
         tempUser.activities = [activity._id];
       } else {
-        tempUser.activities.unshift(activity._id);
+        tempUser.activities.push(activity._id);
       }
       await tempUser
         .save
@@ -199,6 +200,7 @@ const handle_request = async (req, callback) => {
           expenseBalance: (totalMembersOfGroup - 1) * partitionedAmount,
           currency: currency_id,
           user: req.user._id,
+          group: req.body.group_id,
         },
       ]
 
@@ -211,8 +213,13 @@ const handle_request = async (req, callback) => {
     if (user.activities == null) {
       user.activities = [activity._id];
     } else {
-      user.activities.unshift(activity._id);
+      user.activities.push(activity._id);
     }
+
+    await user
+      .save
+      // {session:session}
+      ();
     // Commit changes
     // await session.commitTransaction();
     callback(null, {
@@ -222,7 +229,7 @@ const handle_request = async (req, callback) => {
   } catch (error) {
     // Undo changes
     // await session.abortTransaction();
-
+    console.log(error);
     callback(null, {
       errorMessage: error,
       success: false,

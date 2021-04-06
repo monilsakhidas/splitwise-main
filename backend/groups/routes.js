@@ -12,6 +12,11 @@ const {
   GET_GROUP_DETAILS,
   SEARCH_GROUPS,
   GROUP_ADD_EXPENSE,
+  GET_GROUP_BALANCES,
+  GET_GROUP_DEBTS,
+  GET_GROUP_EXPENSES,
+  ADD_COMMENTS_EXPENSE,
+  DELETE_COMMENT_EXPENSE,
 } = require("../kafka/topics");
 const ObjectId = require("mongoose").Types.ObjectId;
 const router = express.Router();
@@ -260,6 +265,213 @@ router.post("/addexpense", requireSignIn, async (req, res) => {
 
   kafka.make_request(
     GROUP_ADD_EXPENSE,
+    { body: req.body, user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// get group balances
+router.get("/groupbalance/:id", requireSignIn, async (req, res) => {
+  // Construct expected schema
+  const schema = Joi.string().required().messages({
+    "any.required": "Select a valid group",
+    "string.base": "Select a valid group",
+    "string.empty": "Select a valid group",
+  });
+  // Validate schema
+  const result = await schema.validate(req.params.id);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  if (!ObjectId.isValid(req.params.id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+  kafka.make_request(
+    GET_GROUP_BALANCES,
+    {
+      user: req.user,
+      params: req.params,
+    },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Get group debts
+router.get("/debts/:id", requireSignIn, async (req, res) => {
+  // Construct expected schema
+  const schema = Joi.string().required().messages({
+    "any.required": "Select a valid group",
+    "string.base": "Select a valid group",
+    "string.empty": "Select a valid group",
+  });
+  // Validate schema
+  const result = await schema.validate(req.params.id);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.params.id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+
+  kafka.make_request(
+    GET_GROUP_DEBTS,
+    { user: req.user, params: req.params },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Get Group expenses
+router.get("/expenses/:id", requireSignIn, async (req, res) => {
+  const schema = Joi.string().required().messages({
+    "any.required": "Select a valid group",
+    "string.base": "Select a valid group",
+    "string.empty": "Select a valid group",
+  });
+  // Validate schema
+  const result = await schema.validate(req.params.id);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.params.id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+
+  kafka.make_request(
+    GET_GROUP_EXPENSES,
+    { user: req.user, params: req.params },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Add expense comments
+router.post("/addcomment", requireSignIn, async (req, res) => {
+  const schema = Joi.object({
+    comment: Joi.string()
+      .max(1024)
+      .required()
+      .pattern(/[$\(\)<>]/, { invert: true })
+      .messages({
+        "any.required": "Enter a valid comment.",
+        "string.base": "Enter a valid comment.",
+        "string.empty": "Enter a valid comment.",
+        "string.pattern.invert.base": "Enter a valid comment.",
+        "string.max":
+          "Length of the comment should not exceed more than 1024 characters.",
+      }),
+    expense_id: Joi.string().required().messages({
+      "any.required": "Select a valid group",
+      "string.base": "Select a valid group",
+      "string.empty": "Select a valid group",
+    }),
+    group_id: Joi.string().required().messages({
+      "any.required": "Select a valid group",
+      "string.base": "Select a valid group",
+      "string.empty": "Select a valid group",
+    }),
+  });
+  // Validate schema
+  const result = await schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body.expense_id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body.group_id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+  kafka.make_request(
+    ADD_COMMENTS_EXPENSE,
+    { user: req.user, body: req.body },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+router.post("/removecomment", requireSignIn, async (req, res) => {
+  const schema = Joi.object({
+    expense_id: Joi.string().required().messages({
+      "any.required": "Select a valid expense",
+      "string.base": "Select a valid expense",
+      "string.empty": "Select a valid expense",
+    }),
+    comment_id: Joi.string().required().messages({
+      "any.required": "Select a valid comment",
+      "string.base": "Select a valid comment",
+      "string.empty": "Select a valid comment",
+    }),
+    group_id: Joi.string().required().messages({
+      "any.required": "Select a valid group",
+      "string.base": "Select a valid group",
+      "string.empty": "Select a valid group",
+    }),
+  });
+  // Validate schema
+  const result = await schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body.expense_id)) {
+    res.status(400).send({ errorMessage: "Select a valid expense" });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body.comment_id)) {
+    res.status(400).send({ errorMessage: "Select a valid comment" });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body.group_id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+  kafka.make_request(
+    DELETE_COMMENT_EXPENSE,
     { body: req.body, user: req.user },
     (error, results) => {
       if (!results.success) {
