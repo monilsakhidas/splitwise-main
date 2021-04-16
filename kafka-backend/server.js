@@ -28,6 +28,9 @@ const {
   GET_RECENT_ACTIVITY,
   ADD_COMMENTS_EXPENSE,
   DELETE_COMMENT_EXPENSE,
+  GET_USER_DEBTS,
+  GET_USER_DASHBOARD_BALANCE,
+  GROUP_LEAVE,
 } = require("./kafka/topics");
 
 // Topics
@@ -41,6 +44,8 @@ const userInvitationsGet = require("./services/users/userInvitationsGet");
 const userSettleUpListGet = require("./services/users/userSettleUpList");
 const userSettleUp = require("./services/users/userSettleUp");
 const userRecentActivityGet = require("./services/users/userRecentActivityGet");
+const userDebtsGet = require("./services/users/userDebtsGet");
+const userDashboardBalanceGet = require("./services/users/userDashboardBalanceGet");
 // Groups
 const groupCreate = require("./services/groups/createGroup");
 const groupUpdate = require("./services/groups/updateGroupDetails");
@@ -54,6 +59,7 @@ const groupDebtsGet = require("./services/groups/groupDebtsGet");
 const groupExpensesGet = require("./services/groups/groupExpensesGet");
 const groupExpenseCommentAdd = require("./services/groups/addComment");
 const groupExpenseCommentRemove = require("./services/groups/removeComment");
+const groupLeave = require("./services/groups/leaveGroup");
 // Currencies
 const getAllCurrencies = require("./services/masters/getAllCurrencies");
 
@@ -118,3 +124,6 @@ handleTopicRequest(GET_GROUP_EXPENSES, groupExpensesGet);
 handleTopicRequest(GET_RECENT_ACTIVITY, userRecentActivityGet);
 handleTopicRequest(ADD_COMMENTS_EXPENSE, groupExpenseCommentAdd);
 handleTopicRequest(DELETE_COMMENT_EXPENSE, groupExpenseCommentRemove);
+handleTopicRequest(GET_USER_DEBTS, userDebtsGet);
+handleTopicRequest(GET_USER_DASHBOARD_BALANCE, userDashboardBalanceGet);
+handleTopicRequest(GROUP_LEAVE, groupLeave);

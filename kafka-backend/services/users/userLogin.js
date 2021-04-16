@@ -4,7 +4,7 @@ const models = require("../../models/modelsStore");
 const config = require("../../configuration/config");
 
 const handle_request = async (req, callback) => {
-  //Check if the user with the input email exists
+  // Check if the user with the input email exists
   models.users
     .findOne({
       email: req.body.email.toLowerCase(),
@@ -29,6 +29,12 @@ const handle_request = async (req, callback) => {
         // Generate a JWT token
         const jwtToken = jwt.sign(unsignedJwtUserObject, config.jwtSecretKey, {
           expiresIn: config.jwtExpiryTime,
+        });
+        console.log({
+          user: unsignedJwtUserObject,
+          token: jwtToken,
+          message: "Logged in successfully.",
+          success: true,
         });
         callback(null, {
           user: unsignedJwtUserObject,

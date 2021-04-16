@@ -7,6 +7,8 @@ const GET_USER_INVITATIONS = "userInvitationsGet";
 const GET_USER_SETTLE_UP_LIST = "userSettleUpList";
 const SETTLE_UP_WITH_A_USER = "userSettleUp";
 const GET_RECENT_ACTIVITY = "userRecentActivityGet";
+const GET_USER_DEBTS = "userDebtsGet";
+const GET_USER_DASHBOARD_BALANCE = "userDashboardBalanceGet";
 // Groups
 const GROUP_CREATE = "groupCreate";
 const GROUP_UPDATE_DETAILS = "groupDetailsUpdate"; // Update basic group details
@@ -19,6 +21,7 @@ const GET_GROUP_DEBTS = "groupDebtsGet";
 const GET_GROUP_EXPENSES = "groupExpensesGet";
 const ADD_COMMENTS_EXPENSE = "addCommentsExpense";
 const DELETE_COMMENT_EXPENSE = "deleteCommentsExpense";
+const GROUP_LEAVE = "groupLeave";
 // Master
 const GET_ALL_CURRENCIES = "currenciesGetAll";
 
@@ -49,4 +52,7 @@ module.exports = {
   GET_RECENT_ACTIVITY,
   ADD_COMMENTS_EXPENSE,
   DELETE_COMMENT_EXPENSE,
+  GET_USER_DEBTS,
+  GET_USER_DASHBOARD_BALANCE,
+  GROUP_LEAVE,
 };

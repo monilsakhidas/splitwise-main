@@ -20,6 +20,8 @@ const {
   GET_USER_SETTLE_UP_LIST,
   SETTLE_UP_WITH_A_USER,
   GET_RECENT_ACTIVITY,
+  GET_USER_DEBTS,
+  GET_USER_DASHBOARD_BALANCE,
 } = require("../kafka/topics");
 
 // Initializing Router
@@ -364,6 +366,32 @@ router.get("/activity", requireSignIn, async (req, res) => {
   kafka.make_request(
     GET_RECENT_ACTIVITY,
     { user: req.user, query: req.query },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Get user debts
+router.get("/debts", requireSignIn, async (req, res) => {
+  kafka.make_request(GET_USER_DEBTS, { user: req.user }, (error, results) => {
+    if (!results.success) {
+      res.status(400).send(results);
+    } else {
+      res.status(200).send(results);
+    }
+  });
+});
+
+// Get user dashboard balance
+router.get("/balance", requireSignIn, async (req, res) => {
+  kafka.make_request(
+    GET_USER_DASHBOARD_BALANCE,
+    { user: req.user },
     (error, results) => {
       if (!results.success) {
         res.status(400).send(results);

@@ -18,10 +18,22 @@ const getIndexOfGroupBalancesArray = (user_id, currency_id, groupBalances) => {
   }
 };
 
+const canUserLeaveTheGroup = (_id, groupBalances) => {
+  if (!groupBalances || groupBalances.length == 0) {
+    return true;
+  } else {
+    for (let i = 0; i < groupBalances.length; i++) {
+      if (groupBalances[i].user.equals(_id) && groupBalances[i].balance != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
 const settleUpTheUsers = async (rawDebt) => {
   // find the group instance in which the settle up activity
   // is being carried out
-  console.log(rawDebt);
   const group = await models.groups.findById(String(rawDebt.group));
 
   // find paidBy userId and paidTo userId
@@ -182,6 +194,76 @@ const getRecentActivityExpenseStatement = (recentActivity) => {
   }
 };
 
+const getPersonalOwesYouBalanceStatement = (
+  userName,
+  currencySymbol,
+  groupName,
+  amount
+) => {
+  return (
+    capitalizeFirstLetter(userName) +
+    " owes you " +
+    getFormattedAmountWithCurrency(currencySymbol, amount) +
+    " for " +
+    '"' +
+    capitalizeFirstLetter(groupName) +
+    '"' +
+    "."
+  );
+};
+
+const getPersonalOwingBalanceStatement = (
+  userName,
+  currencySymbol,
+  groupName,
+  amount
+) => {
+  return (
+    "You owe " +
+    capitalizeFirstLetter(userName) +
+    " " +
+    getFormattedAmountWithCurrency(currencySymbol, amount) +
+    " for " +
+    '"' +
+    capitalizeFirstLetter(groupName) +
+    '"' +
+    "."
+  );
+};
+
+// Used for dashboard amount api
+const getAmountWithSymbolFromMap = (map) => {
+  const amounts = [];
+  Object.keys(map).forEach((key) => {
+    if (map[key].amount >= 0)
+      amounts.push(
+        getFormattedAmountWithCurrency(map[key].symbol, map[key].amount)
+      );
+    else
+      amounts.push(
+        "-" + getFormattedAmountWithCurrency(map[key].symbol, -map[key].amount)
+      );
+  });
+  return amounts;
+};
+
+const getFormattedAmount = (amountList) => {
+  if (amountList.length == 1) {
+    return amountList[0];
+  } else if (amountList.length >= 2) {
+    const commaSeperatedAmountList = amountList.join(", ");
+    const lastCommaIndex = commaSeperatedAmountList.lastIndexOf(",");
+    const finalAmountString =
+      amountList.join().slice(0, lastCommaIndex) +
+      " and" +
+      commaSeperatedAmountList.slice(
+        lastCommaIndex + 1,
+        commaSeperatedAmountList.length + 1
+      );
+    return finalAmountString;
+  }
+};
+
 const utils = {
   getIndexOfGroupBalancesArray,
   settleUpTheUsers,
@@ -190,6 +272,11 @@ const utils = {
   getFormattedAmountWithCurrency,
   getRecentActivityDescription,
   getRecentActivityExpenseStatement,
+  getPersonalOwingBalanceStatement,
+  getPersonalOwesYouBalanceStatement,
+  getAmountWithSymbolFromMap,
+  getFormattedAmount,
+  canUserLeaveTheGroup,
 };
 
 module.exports = utils;

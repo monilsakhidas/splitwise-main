@@ -17,6 +17,7 @@ const {
   GET_GROUP_EXPENSES,
   ADD_COMMENTS_EXPENSE,
   DELETE_COMMENT_EXPENSE,
+  GROUP_LEAVE,
 } = require("../kafka/topics");
 const ObjectId = require("mongoose").Types.ObjectId;
 const router = express.Router();
@@ -472,6 +473,41 @@ router.post("/removecomment", requireSignIn, async (req, res) => {
   }
   kafka.make_request(
     DELETE_COMMENT_EXPENSE,
+    { body: req.body, user: req.user },
+    (error, results) => {
+      if (!results.success) {
+        res.status(400).send(results);
+      } else {
+        res.status(200).send(results);
+      }
+    }
+  );
+});
+
+// Leave a group
+router.post("/leave", requireSignIn, async (req, res) => {
+  // contruct expected schema
+  const schema = Joi.object({
+    _id: Joi.string().required().messages({
+      "any.required": "Select a valid group",
+      "string.base": "Select a valid group",
+      "string.empty": "Select a valid group",
+    }),
+  });
+  // validate schema
+  const result = await schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send({ errorMessage: result.error.details[0].message });
+    return;
+  }
+  // If the inputted objectId is invalid
+  if (!ObjectId.isValid(req.body._id)) {
+    res.status(400).send({ errorMessage: "Select a valid group" });
+    return;
+  }
+
+  kafka.make_request(
+    GROUP_LEAVE,
     { body: req.body, user: req.user },
     (error, results) => {
       if (!results.success) {
