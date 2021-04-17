@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const models = require("../../models/modelsStore");
 const config = require("../../configuration/config");
+const { capitalizeFirstLetter } = require("../../helpers/utils");
 
 const handle_request = async (req, callback) => {
   // Check if the user with the input email exists
@@ -22,7 +23,7 @@ const handle_request = async (req, callback) => {
       } else {
         const unsignedJwtUserObject = {
           _id: user._id,
-          name: user.name,
+          name: capitalizeFirstLetter(user.name),
           email: user.email,
           currencyId: user.currencyId,
         };
