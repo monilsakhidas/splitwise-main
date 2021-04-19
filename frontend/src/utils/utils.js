@@ -32,6 +32,8 @@ const utils = {
   },
   getProfileImageUrl: (url = "uploads/all/profile_placeholder.jpg") => {
     // don't mess with already converted images with proper path
+    if (url === null)
+      return config.BACKEND_URL + "/uploads/all/profile_placeholder.jpg";
     if (url.startsWith("http")) return url;
     return config.BACKEND_URL + "/" + url;
   },

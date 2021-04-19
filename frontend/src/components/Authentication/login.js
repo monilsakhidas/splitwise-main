@@ -5,7 +5,7 @@ import axios from "axios";
 import cookie from "react-cookies";
 import utils from "../../utils/utils";
 import { connect } from "react-redux";
-import { login } from "../../features/userSlice";
+import { login, setError } from "../../redux/actions/authentication";
 
 // Extends component
 class Login extends Component {
@@ -26,12 +26,11 @@ class Login extends Component {
         maxAge: 120000,
       });
     }
+
     this.state = {
       email: "",
       password: "",
-      error: false,
-      errorMessage: "",
-      tokenState: data[0],
+      tokenState: data ? data[0] : false,
     };
   }
 
@@ -39,56 +38,7 @@ class Login extends Component {
   handleSubmit = (submitEvent) => {
     submitEvent.preventDefault();
     const { error, errorMessage, tokenState, ...data } = this.state;
-    axios
-      .post(config.BACKEND_URL + "/users/login", data)
-      .then((res) => {
-        if (res.status === 200) {
-          this.setState({
-            error: false,
-          });
-          // save jwtToken
-          cookie.save("jwtToken", res.data.token, {
-            path: "/",
-            httponly: false,
-            maxAge: 120000,
-          });
-          // save name
-          cookie.save("name", res.data.user.name, {
-            path: "/",
-            httpOnly: false,
-            maxAge: 120000,
-          });
-          // save email
-          cookie.save("email", res.data.user.email, {
-            path: "/",
-            httpOnly: false,
-            maxAge: 120000,
-          });
-          // save userId
-          cookie.save("_id", res.data.user._id, {
-            path: "/",
-            httpOnly: false,
-            maxAge: 120000,
-          });
-
-          // Redux action
-          this.props.login({
-            token: res.data.token,
-          });
-
-          this.props.history.push("/users/dashboard");
-        }
-      })
-      .catch((err) => {
-        if (err.response) {
-          this.setState({
-            error: true,
-            errorMessage: err.response.data.errorMessage,
-          });
-        } else {
-          console.log(err);
-        }
-      });
+    this.props.login(data);
   };
 
   // On change of password event
@@ -103,30 +53,28 @@ class Login extends Component {
       )
     ) {
       this.setState({
-        error: false,
         [emailChangeEvent.target.name]: emailChangeEvent.target.value,
-        errorMessage: "",
       });
+      this.props.setError({ error: null, errorMessage: null });
     } else {
       this.setState({
-        error: true,
-        errorMessage: "Enter a valid email",
         [emailChangeEvent.target.name]: "",
       });
+      this.props.setError({ error: true, errorMessage: "Enter a valid email" });
     }
   };
 
   // render method of login component
   render() {
     // If already logged in
-    if (this.state.tokenState) {
+    if (this.state.tokenState || this.props.error === false) {
       return utils.getRedirectComponent("/users/dashboard");
     }
     // If not logged in already
     let renderError = null;
-    if (this.state.error) {
+    if (this.props.error) {
       renderError = (
-        <div style={{ color: "red" }}>{this.state.errorMessage}</div>
+        <div style={{ color: "red" }}>{this.props.errorMessage}</div>
       );
     }
 
@@ -201,14 +149,20 @@ class Login extends Component {
   }
 }
 
-const matchStateToProps = (state) => {
-  return {};
-};
-
-const matchDispatchToProps = (dispatch) => {
+const mapStateToProps = (state) => {
   return {
-    login: (data) => dispatch(login(data)),
+    error: state.userProfileReducer.error,
+    errorMessage: state.userProfileReducer.errorMessage,
+    user: state.userProfileReducer.loggedInUser,
+    jwtToken: state.userProfileReducer.jwtToken,
   };
 };
 
-export default connect(matchStateToProps, matchDispatchToProps)(Login);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    login: (data) => dispatch(login(data)),
+    setError: (data) => dispatch(setError(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

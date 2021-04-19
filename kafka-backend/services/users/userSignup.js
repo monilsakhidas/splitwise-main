@@ -17,6 +17,11 @@ const handle_request = async (req, callback) => {
   const rawUser = new models.users(userObject);
   try {
     const user = await rawUser.save();
+    const userCurrency = await models.currencies.findById(
+      user.currencyId,
+      "symbol name"
+    );
+    user.currencyId = userCurrency;
     const jwtToken = jwt.sign(user.toJSON(), config.jwtSecretKey, {
       expiresIn: config.jwtExpiryTime,
     });

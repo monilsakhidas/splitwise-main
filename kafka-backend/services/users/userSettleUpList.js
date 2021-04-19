@@ -1,4 +1,5 @@
 const models = require("../../models/modelsStore");
+const { capitalizeFirstLetter } = require("../../helpers/utils");
 const handle_request = async (req, callback) => {
   const userSet = new Set();
   const rawUserDebts = await models.debts.find({
@@ -13,10 +14,18 @@ const handle_request = async (req, callback) => {
   });
   userSet.delete(req.user._id);
   const userList = Array.from(userSet);
-  const users = await models.users.find(
+  const rawUsers = await models.users.find(
     { _id: { $in: userList } },
     "name email"
   );
+
+  const users = rawUsers.map((user) => {
+    return {
+      _id: user._id,
+      email: user.email,
+      name: capitalizeFirstLetter(user.name),
+    };
+  });
   callback(null, { success: true, users });
 };
 exports.handle_request = handle_request;

@@ -1,5 +1,6 @@
 const models = require("../../models/modelsStore");
 const config = require("../../configuration/config");
+const { capitalizeFirstLetter } = require("../../helpers/utils");
 
 const handle_request = async (req, callback) => {
   // find Image path of the updated Image. If image is not updated set it to the original image
@@ -34,6 +35,8 @@ const handle_request = async (req, callback) => {
         number: updatedUser.number,
         timezone: updatedUser.timezone,
         currency: updatedUser.currencyId,
+        name: capitalizeFirstLetter(updatedUser.name),
+        image: imagePath,
         success: true,
       });
       return;

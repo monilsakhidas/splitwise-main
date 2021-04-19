@@ -10,6 +10,7 @@ const handle_request = async (req, callback) => {
     .findOne({
       email: req.body.email.toLowerCase(),
     })
+    .populate("currencyId", "symbol name")
     .then(async (user) => {
       if (
         user == null ||
@@ -21,7 +22,7 @@ const handle_request = async (req, callback) => {
           success: false,
         });
       } else {
-        const unsignedJwtUserObject = {
+        let unsignedJwtUserObject = {
           _id: user._id,
           name: capitalizeFirstLetter(user.name),
           email: user.email,
@@ -31,6 +32,14 @@ const handle_request = async (req, callback) => {
         const jwtToken = jwt.sign(unsignedJwtUserObject, config.jwtSecretKey, {
           expiresIn: config.jwtExpiryTime,
         });
+
+        unsignedJwtUserObject = Object.assign(unsignedJwtUserObject, {
+          language: user.language,
+          number: user.number,
+          timezone: user.timezone,
+          image: user.image,
+        });
+
         console.log({
           user: unsignedJwtUserObject,
           token: jwtToken,

@@ -2,7 +2,7 @@ import { Component } from "react";
 import cookie from "react-cookies";
 import utils from "../../utils/utils";
 import { connect } from "react-redux";
-import { logout } from "../../features/userSlice";
+import { logout } from "../../redux/actions/authentication";
 
 class Logout extends Component {
   render() {
@@ -12,7 +12,7 @@ class Logout extends Component {
       Object.keys(allCookies).forEach((cookieKey) => {
         cookie.remove(cookieKey, { path: "/" });
       });
-      this.props.logout({});
+      this.props.logout();
     }
     return utils.getRedirectComponent("/");
   }
@@ -24,7 +24,7 @@ const matchStateToProps = (state) => {
 
 const matchDispatchToProps = (dispatch) => {
   return {
-    logout: () => dispatch(logout()),
+    logout: () => dispatch(logout(null)),
   };
 };
 

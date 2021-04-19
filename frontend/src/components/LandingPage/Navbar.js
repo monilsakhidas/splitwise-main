@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import cookie from "react-cookies";
 import utils from "../../utils/utils";
 import splitwiselogo from "../../images/splitwise-logo.png";
-
+import { connect } from "react-redux";
 class Navbar extends Component {
   render() {
     const [isTokenValid, name, email] = utils.isJWTValid(
@@ -56,7 +56,7 @@ class Navbar extends Component {
                 aria-expanded="false"
                 style={{ color: "white" }}
               >
-                <em>{name}</em>
+                <em>{this.props.name}</em>
               </Link>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <Link class="dropdown-item" to="/users/update">
@@ -167,4 +167,10 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+const mapStateToProps = (state) => {
+  return {
+    name: state.userProfileReducer.loggedInUser.name,
+  };
+};
+
+export default connect(mapStateToProps)(Navbar);
