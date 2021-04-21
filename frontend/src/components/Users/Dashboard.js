@@ -97,7 +97,6 @@ class Dashboard extends Component {
   }
 
   render() {
-    console.log(this.props);
     if (!this.state.tokenState) {
       return utils.getRedirectComponent("/login");
     } else {

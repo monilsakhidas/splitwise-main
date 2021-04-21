@@ -56,6 +56,7 @@ const handle_request = async (req, callback) => {
       name: group.name,
       createdBy: group.createdBy,
       members: group.members,
+      image: imagePath,
       success: true,
     });
     await session.endSession();

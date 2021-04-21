@@ -21,7 +21,6 @@ const handle_request = async (req, callback) => {
   const orderByIdentifier =
     !req.query.orderBy || req.query.orderBy == 1 ? -1 : 1;
   let loggedInUser;
-  console.log("ahjsbjhcbhjschjdsbchjsdbcjhsbcjhsdbchjs", req.query.group_id);
   if (req.query.group_id) {
     // Check whether the user is member of the inputted group or not
     loggedInUser = await models.users

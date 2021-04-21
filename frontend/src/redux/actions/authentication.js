@@ -4,11 +4,9 @@ import {
   SIGNUP,
   SET_ERROR,
   UPDATE_USER_PROFILE,
-  SET_MESSAGE,
 } from "../constants/actionTypes";
 
 export const login = (payload) => {
-  console.log("dispatching login action");
   return { type: LOGIN, payload };
 };
 
@@ -26,8 +24,4 @@ export const updateUserProfile = (payload) => {
 
 export const setError = (payload) => {
   return { type: SET_ERROR, payload };
-};
-
-export const setMessage = (payload) => {
-  return { type: SET_MESSAGE, payload };
 };

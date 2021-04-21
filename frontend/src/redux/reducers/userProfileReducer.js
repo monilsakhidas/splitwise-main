@@ -26,7 +26,6 @@ const initialState = {
 
 const userProfileReducer = (state = initialState, action) => {
   if (action.type === LOGIN) {
-    console.log(action.payload);
     if (!action.payload.error) {
       return {
         ...state,
@@ -63,7 +62,6 @@ const userProfileReducer = (state = initialState, action) => {
       };
     }
   } else if (action.type === LOGOUT) {
-    console.log("INSIDE LOGOUT REDUCER");
     return {
       ...state,
       jwtToken: null,
@@ -118,7 +116,6 @@ const userProfileReducer = (state = initialState, action) => {
     }
   } else if (action.type === UPDATE_USER_PROFILE) {
     if (!action.payload.error) {
-      console.log(action.payload);
       return {
         ...state,
         loggedInUser: {

@@ -35,7 +35,7 @@ const handle_request = async (req, callback) => {
     callback(null, { errorMessage: "Select a valid group.", success: false });
     return;
   }
-  const loggedInUser = await models.users.findById(req.user._id);
+  const loggedInUser = await models.users.findById(req.user._id, "timezone");
   const sortedExpenses = group.expenses
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .map((expense) => {
@@ -43,9 +43,10 @@ const handle_request = async (req, callback) => {
         return {
           _id: comment._id,
           commentedByUser_id: comment.commentedByUser._id,
-          commentedByUserName: capitalizeFirstLetter(
-            comment.commentedByUser.name
-          ),
+          commentedByUserName:
+            comment.commentedByUser._id == req.user._id
+              ? "You"
+              : capitalizeFirstLetter(comment.commentedByUser.name),
           comment: comment.comment,
           time: dayjs
             .tz(comment.createdAt, loggedInUser.timezone)
@@ -68,7 +69,7 @@ const handle_request = async (req, callback) => {
     });
 
   //   const timezone = loggedInUser.timezone;
-  callback(null, { group: sortedExpenses, success: true });
+  callback(null, { expenses: sortedExpenses, success: true });
   // Get All expenses of the group
 };
 

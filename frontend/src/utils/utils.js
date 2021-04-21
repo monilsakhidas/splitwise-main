@@ -62,6 +62,18 @@ const utils = {
       return finalAmountString;
     }
   },
+  findIndexInArray: (expense_id, expenses) => {
+    if (!expenses || expenses.length == 0) {
+      return -1;
+    } else {
+      for (let i = 0; i < expenses.length; i++) {
+        if (expenses[i]._id == expense_id) {
+          return i;
+        }
+      }
+      return -1;
+    }
+  },
 };
 
 export default utils;

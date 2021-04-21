@@ -2,7 +2,17 @@ import axios from "axios";
 import config from "../../config/config";
 import cookie from "react-cookies";
 import utils from "../../utils/utils";
-import { LOGIN, SIGNUP, UPDATE_USER_PROFILE } from "../constants/actionTypes";
+import {
+  LOGIN,
+  SIGNUP,
+  UPDATE_USER_PROFILE,
+  CREATE_GROUP,
+  EDIT_GROUP,
+  ADD_COMMENT,
+  ADD_EXPENSE,
+  DELETE_COMMENT,
+  GET_GROUP_DETAILS,
+} from "../constants/actionTypes";
 
 export function splitwiseMiddleware({ dispatch }) {
   return function (next) {
@@ -164,6 +174,134 @@ export function splitwiseMiddleware({ dispatch }) {
               console.log(error.response);
             }
           });
+      } else if (action.type === CREATE_GROUP) {
+        try {
+          const response = await axios.post(
+            config.BACKEND_URL + "/groups/create",
+            action.payload,
+            {
+              headers: Object.assign(
+                utils.getJwtHeader(cookie.load("jwtToken")),
+                utils.getFormDataHeader
+              ),
+            }
+          );
+          if (response.status === 200) {
+            action.payload = response.data;
+          }
+        } catch (error) {
+          action.payload = {
+            error: true,
+            errorMessage: error.response.data.errorMessage,
+          };
+        }
+      } else if (action.type === EDIT_GROUP) {
+        try {
+          const response = await axios.put(
+            config.BACKEND_URL + "/groups/editgroup",
+            action.payload,
+            {
+              headers: Object.assign(
+                utils.getJwtHeader(cookie.load("jwtToken")),
+                utils.getFormDataHeader
+              ),
+            }
+          );
+          if (response.status === 200) {
+            action.payload = Object.assign(response.data, {
+              error: false,
+              errorMessage: null,
+            });
+          }
+        } catch (error) {
+          if (error.response) {
+            action.payload = {
+              error: true,
+              errorMessage: error.response.data.errorMessage,
+            };
+          } else {
+            console.log(error);
+          }
+        }
+      } else if (action.type === GET_GROUP_DETAILS) {
+        try {
+          // group balance api
+          const groupBalanceResponse = await axios.get(
+            config.BACKEND_URL + "/groups/groupbalance/" + action.payload,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          // group expenses api
+          const groupExpenseResponse = await axios.get(
+            config.BACKEND_URL + "/groups/expenses/" + action.payload,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          // group debts api
+          const groupDebtsResponse = await axios.get(
+            config.BACKEND_URL + "/groups/debts/" + action.payload,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          // set group balances in state
+          action.payload = {
+            _id: action.payload,
+            groupBalances: groupBalanceResponse.data.groupBalances,
+            groupExpenses: groupExpenseResponse.data.expenses,
+            loans: groupDebtsResponse.data.loans,
+          };
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (action.type === ADD_COMMENT) {
+        console.log("INSIDE ADD COMMENT MIDDLEWARE");
+        try {
+          const response = await axios.post(
+            config.BACKEND_URL + "/groups/addcomment",
+            action.payload,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          if (response.status === 200) {
+            action.payload = {
+              ...action.payload,
+              ...response.data.comment,
+            };
+          }
+        } catch (error) {
+          //console.log(response);
+          console.log(error);
+          if (error.response) {
+            action.payload = {
+              error: true,
+              errorMessage: error.response.data.errorMessage,
+            };
+          } else {
+            console.log(error);
+          }
+        }
+      } else if (action.type === ADD_EXPENSE) {
+        try {
+          const response = await axios.post(
+            config.BACKEND_URL + "/groups/addexpense",
+            action.payload,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          action.payload = response.data.expense;
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (action.type === DELETE_COMMENT) {
+        try {
+          const response = await axios.post(
+            config.BACKEND_URL + "/groups/removecomment",
+            action.payload,
+            {
+              headers: utils.getJwtHeader(cookie.load("jwtToken")),
+            }
+          );
+          if (response.status === 200) {
+            // do nothing
+          }
+        } catch (error) {
+          console.log(error);
+        }
       } else {
         console.log("Inside middleware else");
       }

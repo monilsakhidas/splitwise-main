@@ -6,9 +6,9 @@ import SignUp from "./SignUp/Signup";
 import Navbar from "./LandingPage/Navbar";
 import Logout from "./Authentication/logout";
 import UpdateProfile from "./Users/UpdateProfile";
-// import CreateGroup from "./Groups/CreateGroup";
-// import MyGroups from "./Groups/MyGroups";
-// import GroupDetails from "./Groups/GroupDetails";
+import CreateGroup from "./Groups/CreateGroup";
+import MyGroups from "./Groups/MyGroups";
+import GroupDetails from "./Groups/GroupDetails";
 // import RecentActivity from "./Groups/RecentActivity";
 import Dashboard from "./Users/Dashboard";
 import LandingPage from "./LandingPage/LandingPage";
@@ -28,9 +28,9 @@ class Routing extends Component {
         {/* <Route path="/users/activity" component={RecentActivity} /> */}
         <Route path="/users/dashboard" component={Dashboard} />
         {/* Groups */}
-        {/* <Route path="/groups/create" component={CreateGroup} />
+        <Route path="/groups/create" component={CreateGroup} />
         <Route path="/groups/mygroups" component={MyGroups} />
-        <Route path="/groups/group-description" component={GroupDetails} /> */}
+        <Route path="/groups/group-description" component={GroupDetails} />
       </div>
     );
   }

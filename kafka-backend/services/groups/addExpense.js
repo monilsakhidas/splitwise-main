@@ -1,6 +1,18 @@
 const models = require("../../models/modelsStore");
 const mongoose = require("mongoose");
-const { getIndexOfGroupBalancesArray } = require("../../helpers/utils");
+const {
+  getIndexOfGroupBalancesArray,
+  capitalizeFirstLetter,
+  getFormattedAmountWithCurrency,
+} = require("../../helpers/utils");
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc"); // dependent on utc plugin
+const timezone = require("dayjs/plugin/timezone");
+const localizedFormat = require("dayjs/plugin/localizedFormat");
+dayjs.extend(localizedFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const handle_request = async (req, callback) => {
   // Check whether the logged in user is a member of the group or not
   const group = await models.groups.findById(req.body.group_id);
@@ -11,13 +23,14 @@ const handle_request = async (req, callback) => {
     });
     return;
   }
-  // Get currency of logged in user
+  // Get currency and other details of logged in user
   const user = await models.users.findById(
     req.user._id,
-    "currencyId activities"
+    "currencyId activities timezone image name"
   );
-  const currency_id = user.currencyId;
 
+  const currency_id = user.currencyId;
+  const currency = await models.currencies.findById(currency_id, "symbol");
   // Find the group Strength
   const totalMembersOfGroup = group.members.length;
   const partitionedAmount = req.body.amount / totalMembersOfGroup;
@@ -222,8 +235,22 @@ const handle_request = async (req, callback) => {
       ();
     // Commit changes
     // await session.commitTransaction();
+    console.log(expense);
+    console.log(expense.createdAt);
+    console.log(user);
+    console.log(user.timezone);
+    console.log(dayjs.tz(expense.createdAt, user.timezone));
     callback(null, {
-      expense,
+      expense: {
+        _id: expense._id,
+        description: expense.description,
+        amount: getFormattedAmountWithCurrency(currency.symbol, expense.amount),
+        time: dayjs.tz(expense.createdAt, user.timezone).format("lll"),
+        paidByUserName: capitalizeFirstLetter(user.name),
+        image: user.image,
+        user_id: user._id,
+        comments: [],
+      },
       success: true,
     });
   } catch (error) {
