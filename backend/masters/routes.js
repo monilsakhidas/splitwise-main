@@ -18,10 +18,38 @@ router.get("/currencies", requireSignIn, async (req, res) => {
       res.status(200).send(results);
     }
   });
+});
 
-  // models.currencies.find({}).then((currencyList) => {
-  //   res.status(200).send({ currencyList });
-  // });
+router.get("/test", async (req, res) => {
+  const x = await models.activities.aggregate([
+    {
+      $match: {
+        $and: [{ expenseBalance: 0.5 }],
+      },
+    },
+    {
+      $count: "total",
+    },
+  ]);
+  console.log(x);
+  res.status(200).send(x);
 });
 
 module.exports = router;
+
+// let tranSchemaDoc1 = await transactionSchema.aggregate([
+//   {
+//       $match: {
+//           $and: [
+//               { paidByUserId: mongoose.Types.ObjectId(userId) },
+//               { settleFlag: 'N' },
+//               { tranType: "6" }
+//           ]
+//       }
+//   },
+//   {
+//       $group: {
+//           _id: "$paidForUserId",
+//           total: { $sum: "$amount" }
+//       }
+//   }])

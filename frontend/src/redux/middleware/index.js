@@ -12,6 +12,7 @@ import {
   ADD_EXPENSE,
   DELETE_COMMENT,
   GET_GROUP_DETAILS,
+  GET_RECENT_ACTIVITY,
 } from "../constants/actionTypes";
 
 export function splitwiseMiddleware({ dispatch }) {
@@ -245,13 +246,12 @@ export function splitwiseMiddleware({ dispatch }) {
             _id: action.payload,
             groupBalances: groupBalanceResponse.data.groupBalances,
             groupExpenses: groupExpenseResponse.data.expenses,
-            loans: groupDebtsResponse.data.loans,
+            groupDebts: groupDebtsResponse.data.loans,
           };
         } catch (error) {
           console.log(error);
         }
       } else if (action.type === ADD_COMMENT) {
-        console.log("INSIDE ADD COMMENT MIDDLEWARE");
         try {
           const response = await axios.post(
             config.BACKEND_URL + "/groups/addcomment",
@@ -278,12 +278,32 @@ export function splitwiseMiddleware({ dispatch }) {
         }
       } else if (action.type === ADD_EXPENSE) {
         try {
+          console.log("INSIDE ADD EXPENSE");
           const response = await axios.post(
             config.BACKEND_URL + "/groups/addexpense",
             action.payload,
             { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
           );
-          action.payload = response.data.expense;
+          // group balance api
+          const groupBalanceResponse = await axios.get(
+            config.BACKEND_URL +
+              "/groups/groupbalance/" +
+              action.payload.group_id,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+          // group debts api
+          const groupDebtsResponse = await axios.get(
+            config.BACKEND_URL + "/groups/debts/" + action.payload.group_id,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+
+          console.log("ADTEr CALLING ALL THE APIS");
+          action.payload = {
+            expenses: response.data.expense,
+            balances: groupBalanceResponse.data.groupBalances,
+            loans: groupDebtsResponse.data.loans,
+          };
+          console.log(action.payload);
         } catch (error) {
           console.log(error);
         }
@@ -302,6 +322,40 @@ export function splitwiseMiddleware({ dispatch }) {
         } catch (error) {
           console.log(error);
         }
+      } else if (action.type === GET_RECENT_ACTIVITY) {
+        // group_id, pageSize, pageNumber, orderBy
+        let activitiesResponse = null;
+        if (action.payload.selectedGroupId === 0) {
+          activitiesResponse = await axios.get(
+            config.BACKEND_URL +
+              "/users/activity?" +
+              "&orderBy=" +
+              action.payload.selectedOrder +
+              "&pageSize=" +
+              action.payload.selectedPageSize +
+              "&pageNumber=" +
+              action.payload.selectedPageNumber,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+        } else {
+          activitiesResponse = await axios.get(
+            config.BACKEND_URL +
+              "/users/activity?" +
+              "group_id=" +
+              action.payload.selectedGroupId +
+              "&orderBy=" +
+              action.payload.selectedOrder +
+              "&pageSize=" +
+              action.payload.selectedPageSize +
+              "&pageNumber=" +
+              action.payload.selectedPageNumber,
+            { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
+          );
+        }
+        action.payload = {
+          activities: activitiesResponse.data.recentActivities,
+          totalPages: activitiesResponse.data.totalPages,
+        };
       } else {
         console.log("Inside middleware else");
       }

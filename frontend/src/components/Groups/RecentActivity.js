@@ -5,6 +5,9 @@ import cookie from "react-cookies";
 import axios from "axios";
 import Select from "react-select";
 import defaultProfileImage from "../../images/profile_placeholder.jpg";
+import ReactPaginate from "react-paginate";
+import { connect } from "react-redux";
+import { getRecentActiviy } from "../../redux/actions/recentActivity";
 class RecentActivity extends Component {
   constructor(props) {
     super(props);
@@ -12,68 +15,70 @@ class RecentActivity extends Component {
       tokenState: utils.isJWTValid(cookie.load("jwtToken"))[0],
       selectedOrder: 1,
       selectedGroupId: 0,
+      selectedPageSize: 2,
+      selectedPageNumber: 1,
       groups: [{ label: "All groups", value: 0 }],
-      activities: [],
     };
   }
 
   handleGroupChange = async (onGroupChangeEvent) => {
     const newGroup = onGroupChangeEvent.value;
-    let activitiesResponse = null;
-    if (newGroup == 0) {
-      // Find activities across all groups
-      activitiesResponse = await axios.get(
-        config.BACKEND_URL +
-          "/users/activity?" +
-          "orderBy=" +
-          this.state.selectedOrder,
-        { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
-      );
-    } else {
-      // Find activities across selected groups
-      activitiesResponse = await axios.get(
-        config.BACKEND_URL +
-          "/users/activity?" +
-          "groupId=" +
-          newGroup +
-          "&orderBy=" +
-          this.state.selectedOrder,
-        { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
-      );
-    }
-
+    const payload = {
+      selectedGroupId: newGroup,
+      selectedOrder: this.state.selectedOrder,
+      selectedPageSize: this.state.selectedPageSize,
+      selectedPageNumber: this.state.selectedPageNumber,
+    };
+    this.props.getRecentActiviy(payload);
     // Set state
     this.setState({
-      selectedGroupId: onGroupChangeEvent.value,
-      activities: activitiesResponse.data.recentActivities,
+      selectedGroupId: newGroup,
+    });
+  };
+
+  handlePageClick = async (e) => {
+    const newPageNumber = e.selected + 1;
+    const payload = {
+      selectedGroupId: this.state.selectedGroupId,
+      selectedOrder: this.state.selectedOrder,
+      selectedPageSize: this.state.selectedPageSize,
+      selectedPageNumber: newPageNumber,
+    };
+    this.props.getRecentActiviy(payload);
+    // Set state
+    this.setState({
+      selectedPageNumber: newPageNumber,
     });
   };
 
   handleOrderingChange = async (onOrderChangeEvent) => {
     const newOrder = onOrderChangeEvent.value;
-    let activitiesResponse = null;
-    if (this.state.selectedGroupId == 0) {
-      // Find activities across all groups
-      activitiesResponse = await axios.get(
-        config.BACKEND_URL + "/users/activity?" + "orderBy=" + newOrder,
-        { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
-      );
-    } else {
-      // Find activities across selected groups
-      activitiesResponse = await axios.get(
-        config.BACKEND_URL +
-          "/users/activity?" +
-          "groupId=" +
-          this.state.selectedGroupId +
-          "&orderBy=" +
-          newOrder,
-        { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
-      );
-    }
+    const payload = {
+      selectedGroupId: this.state.selectedGroupId,
+      selectedOrder: newOrder,
+      selectedPageSize: this.state.selectedPageSize,
+      selectedPageNumber: this.state.selectedPageNumber,
+    };
+    this.props.getRecentActiviy(payload);
 
     this.setState({
-      selectedOrder: onOrderChangeEvent.value,
-      activities: activitiesResponse.data.recentActivities,
+      selectedOrder: newOrder,
+    });
+  };
+
+  handlePageSizeChange = async (onPageSizeChangeEvent) => {
+    const newPageSize = onPageSizeChangeEvent.value;
+    const payload = {
+      selectedGroupId: this.state.selectedGroupId,
+      selectedOrder: this.state.selectedOrder,
+      selectedPageSize: newPageSize,
+      selectedPageNumber: 1,
+    };
+    this.props.getRecentActiviy(payload);
+    //Set state
+    this.setState({
+      selectedPageSize: newPageSize,
+      selectedPageNumber: 1,
     });
   };
 
@@ -89,22 +94,21 @@ class RecentActivity extends Component {
       const myGroupOptions = response.data.groups.map((group) => {
         return {
           label: group.name,
-          value: group.id,
+          value: group._id,
         };
       });
 
       // Find activities across all groups sorted by most recent first
-      const activitiesResponse = await axios.get(
-        config.BACKEND_URL +
-          "/users/activity?" +
-          "orderBy=" +
-          this.state.selectedOrder,
-        { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
-      );
+      const payload = {
+        selectedGroupId: this.state.selectedGroupId,
+        selectedOrder: this.state.selectedOrder,
+        selectedPageSize: this.state.selectedPageSize,
+        selectedPageNumber: this.state.selectedPageNumber,
+      };
+      this.props.getRecentActiviy(payload);
       // Set state
       this.setState({
         groups: [...this.state.groups, ...myGroupOptions],
-        activities: activitiesResponse.data.recentActivities,
       });
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -122,9 +126,10 @@ class RecentActivity extends Component {
       return utils.getRedirectComponent("/login");
     } else {
       let activityCards = null;
+      let paginationBar = null;
       if (
-        this.state.activities == null ||
-        (this.state.activities && this.state.activities.length == 0)
+        this.props.activities == null ||
+        (this.props.activities && this.props.activities.length == 0)
       ) {
         activityCards = (
           <div style={{ marginTop: "230px", marginLeft: "370px" }}>
@@ -132,7 +137,33 @@ class RecentActivity extends Component {
           </div>
         );
       } else {
-        activityCards = this.state.activities.map((activity) => {
+        paginationBar = (
+          <div
+            class="row"
+            style={{
+              width: "50%",
+              marginTop: "100px",
+              marginLeft: "370px",
+              paddingLeft: "0px",
+            }}
+          >
+            <ReactPaginate
+              previousLabel={"prev"}
+              nextLabel={"next"}
+              breakLabel={"..."}
+              breakClassName={"break-me"}
+              pageCount={this.props.totalPages}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={this.handlePageClick}
+              containerClassName={"pagination"}
+              subContainerClassName={"pages pagination"}
+              activeClassName={"active"}
+              forcePage={this.state.selectedPageNumber - 1}
+            />
+          </div>
+        );
+        activityCards = this.props.activities.map((activity) => {
           return (
             <div
               className="row"
@@ -169,7 +200,7 @@ class RecentActivity extends Component {
                   <div class="card-body">
                     <h4 class="card-title">{activity.description}</h4>
                     <p class="card-text">
-                      <div
+                      {/* <div
                         style={{
                           color:
                             activity.balanceStatement.indexOf("get") == -1
@@ -183,7 +214,7 @@ class RecentActivity extends Component {
                       >
                         {activity.balanceStatement}
                         <br />
-                      </div>
+                      </div> */}
                       <div
                         style={{
                           color:
@@ -229,6 +260,17 @@ class RecentActivity extends Component {
                     onChange={this.handleOrderingChange}
                   />
                 </div>
+                <div className="col-12" style={{ marginTop: "10px" }}>
+                  <Select
+                    options={[
+                      { label: "Two Activities per page", value: 2 },
+                      { label: "Five Activities per page", value: 5 },
+                      { label: "Ten Activities per page", value: 10 },
+                    ]}
+                    placeholder="Select page size"
+                    onChange={this.handlePageSizeChange}
+                  />
+                </div>
               </div>
             </div>
             <div className="col-8">
@@ -251,6 +293,7 @@ class RecentActivity extends Component {
                 </div>
               </div>
               {activityCards}
+              {paginationBar}
               {/* <div
                 class="card-footer"
                 style={{ height: "10px", borderWidth: "0px" }}
@@ -264,4 +307,16 @@ class RecentActivity extends Component {
   }
 }
 
-export default RecentActivity;
+const mapStateToProps = (state) => {
+  return {
+    activities: state.recentActivityReducer.activities,
+    totalPages: state.recentActivityReducer.totalPages,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getRecentActiviy: (data) => dispatch(getRecentActiviy(data)),
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(RecentActivity);

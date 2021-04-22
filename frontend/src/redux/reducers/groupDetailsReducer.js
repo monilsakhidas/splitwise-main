@@ -21,13 +21,18 @@ const groupDetailsReducer = (state = initialState, action) => {
   if (action.type === GET_GROUP_DETAILS) {
     return {
       ...state,
-      ...action.payload,
+      groupExpenses: action.payload.groupExpenses,
+      groupDebts: action.payload.groupDebts,
+      groupBalances: action.payload.groupBalances,
+      _id: action.payload._id,
     };
   } else if (action.type === ADD_EXPENSE) {
-    state.groupExpenses.unshift(action.payload);
+    state.groupExpenses.unshift(action.payload.expenses);
     return {
       ...state,
       groupExpenses: [...state.groupExpenses],
+      groupBalances: action.payload.balances,
+      groupDebts: action.payload.loans,
     };
   } else if (action.type === ADD_COMMENT) {
     const expenseIndex = utils.findIndexInArray(

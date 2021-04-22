@@ -64,6 +64,9 @@ class GroupDetails extends Component {
   };
 
   render() {
+    if (!this.state) {
+      return utils.getRedirectComponent("/login");
+    }
     if (!this.state.tokenState) {
       return utils.getRedirectComponent("/login");
     } else if (this.state.outOfState) {
@@ -385,7 +388,7 @@ const mapStateToProps = (state) => {
     loggedInUser_id: state.userProfileReducer.loggedInUser._id,
     groupBalances: state.groupDetailsReducer.groupBalances,
     groupExpenses: state.groupDetailsReducer.groupExpenses,
-    loans: state.groupDetailsReducer.loans,
+    loans: state.groupDetailsReducer.groupDebts,
   };
 };
 

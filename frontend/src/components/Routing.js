@@ -9,7 +9,7 @@ import UpdateProfile from "./Users/UpdateProfile";
 import CreateGroup from "./Groups/CreateGroup";
 import MyGroups from "./Groups/MyGroups";
 import GroupDetails from "./Groups/GroupDetails";
-// import RecentActivity from "./Groups/RecentActivity";
+import RecentActivity from "./Groups/RecentActivity";
 import Dashboard from "./Users/Dashboard";
 import LandingPage from "./LandingPage/LandingPage";
 
@@ -25,7 +25,7 @@ class Routing extends Component {
         <Route path="/login" component={Login} />
         <Route path="/logout" component={Logout} />
         <Route path="/users/update" component={UpdateProfile} />
-        {/* <Route path="/users/activity" component={RecentActivity} /> */}
+        <Route path="/users/activity" component={RecentActivity} />
         <Route path="/users/dashboard" component={Dashboard} />
         {/* Groups */}
         <Route path="/groups/create" component={CreateGroup} />
