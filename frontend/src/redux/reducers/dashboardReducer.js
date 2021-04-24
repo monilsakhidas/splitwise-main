@@ -7,7 +7,7 @@ const initialState = {
   youGetTotal: "",
   totalBalance: "",
   youOwe: {},
-  doYouOwe: {},
+  youAreOwed: {},
 };
 
 const dashboardReducer = (state = initialState, action) => {
@@ -17,7 +17,7 @@ const dashboardReducer = (state = initialState, action) => {
       areYouOwedFlag: action.payload.areYouOwedFlag,
       doYouOweFlag: action.payload.doYouOweFlag,
       youOwe: action.payload.youOwe,
-      doYouOwe: action.payload.doYouOwe,
+      youAreOwed: action.payload.doYouOwe,
       youOweTotal: action.payload.youOweTotal,
       youGetTotal: action.payload.youGetTotal,
       totalBalance: action.payload.totalBalance,
@@ -28,7 +28,7 @@ const dashboardReducer = (state = initialState, action) => {
       areYouOwedFlag: action.payload.areYouOwedFlag,
       doYouOweFlag: action.payload.doYouOweFlag,
       youOwe: action.payload.youOwe,
-      doYouOwe: action.payload.doYouOwe,
+      youAreOwed: action.payload.doYouOwe,
       youOweTotal: action.payload.youOweTotal,
       youGetTotal: action.payload.youGetTotal,
       totalBalance: action.payload.totalBalance,
