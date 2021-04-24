@@ -8,7 +8,6 @@ import store from "./redux/store/index";
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* Import store LEFT */}
     <Provider store={store}>
       <App />
     </Provider>
