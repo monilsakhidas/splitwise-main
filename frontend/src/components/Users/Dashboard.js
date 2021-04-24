@@ -417,7 +417,7 @@ const mapStateToProps = (state) => {
     youGetTotal: state.dashboardReducer.youGetTotal,
     totalBalance: state.dashboardReducer.totalBalance,
     youOwe: state.dashboardReducer.youOwe,
-    doYouOwe: state.dashboardReducer.doYouOwe,
+    youAreOwed: state.dashboardReducer.doYouOwe,
   };
 };
 
