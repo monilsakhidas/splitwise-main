@@ -15,16 +15,20 @@ const initializePassport = () => {
     new JwtStrategy(options, (decodedPayload, callback) => {
       console.log(decodedPayload);
       const userId = decodedPayload._id;
-      models.users.findById(userId, (error, user) => {
-        console.log(userId);
-        if (error) {
-          return callback(error, false);
-        } else if (user) {
-          callback(null, user);
-        } else {
-          callback(null, false);
+      models.users.findById(
+        userId,
+        "currencyId number name language timezone email",
+        (error, user) => {
+          console.log(userId);
+          if (error) {
+            return callback(error, false);
+          } else if (user) {
+            callback(null, user);
+          } else {
+            callback(null, false);
+          }
         }
-      });
+      );
     })
   );
 };

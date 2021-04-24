@@ -12,22 +12,23 @@ class NewComment extends Component {
   }
 
   handleCommentChange = (onCommentChange) => {
-    if (/[~`!%\^\-\[\]\\';/{}|\\"<>\?]/g.test(onCommentChange.target.value)) {
-      this.props.setError({
-        error: true,
-        errorMessage: "Comment should not contain special characters",
-      });
-      this.setState({
-        [onCommentChange.target.name]: "",
-        wasPageJustRefreshed: false,
-      });
-    } else {
-      this.props.setError({ error: null, errorMessage: null });
-      this.setState({
-        comment: onCommentChange.target.value,
-        wasPageJustRefreshed: false,
-      });
-    }
+    // if (/[~`\^\-\[\]\\';/{}|\\"<>\?]/g.test(onCommentChange.target.value)) {
+    //   this.props.setError({
+    //     error: true,
+    //     errorMessage: "Comment should not contain special characters",
+    //   });
+    //   this.setState({
+    //     [onCommentChange.target.name]: "",
+    //     wasPageJustRefreshed: false,
+    //   });
+    // } else {
+    // if (1 > 0) {
+    this.props.setError({ error: null, errorMessage: null });
+    this.setState({
+      comment: onCommentChange.target.value,
+      wasPageJustRefreshed: false,
+    });
+    //}
   };
 
   handleSubmit = async (onSubmitEvent) => {

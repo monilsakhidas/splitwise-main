@@ -13,6 +13,8 @@ import {
   DELETE_COMMENT,
   GET_GROUP_DETAILS,
   GET_RECENT_ACTIVITY,
+  GET_DASHBOARD_BALANCE,
+  SETTLE_UP,
 } from "../constants/actionTypes";
 
 export function splitwiseMiddleware({ dispatch }) {
@@ -355,6 +357,85 @@ export function splitwiseMiddleware({ dispatch }) {
         action.payload = {
           activities: activitiesResponse.data.recentActivities,
           totalPages: activitiesResponse.data.totalPages,
+        };
+      } else if (action.type === SETTLE_UP) {
+        try {
+          const response = await axios.post(
+            config.BACKEND_URL + "/users/settle",
+            { _id: action.payload.selectedUserId },
+            {
+              headers: utils.getJwtHeader(cookie.load("jwtToken")),
+            }
+          );
+          if (response.status === 200) {
+            // Get debts
+            const balanceStatementsResponse = await axios.get(
+              config.BACKEND_URL + "/users/debts",
+              {
+                headers: utils.getJwtHeader(cookie.load("jwtToken")),
+              }
+            );
+            // Get total balance
+            const balanceResponse = await axios.get(
+              config.BACKEND_URL + "/users/balance",
+              {
+                headers: utils.getJwtHeader(cookie.load("jwtToken")),
+              }
+            );
+            const youAreOwed = balanceStatementsResponse.data.youAreOwed;
+            const youOwe = balanceStatementsResponse.data.youOwe;
+
+            action.payload = {
+              youOwe,
+              youAreOwed,
+              doYouOweFlag: !utils.isEmpty(youOwe),
+              areYouOwedFlag: !utils.isEmpty(youAreOwed),
+              youOweTotal: balanceResponse.data.owe
+                ? balanceResponse.data.owe
+                : action.payload.symbol + "0.00",
+              youGetTotal: balanceResponse.data.get
+                ? balanceResponse.data.get
+                : action.payload.symbol + "0.00",
+              totalBalance: balanceResponse.data.total
+                ? balanceResponse.data.total
+                : action.payload.symbol + "0.00",
+            };
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (action.type === GET_DASHBOARD_BALANCE) {
+        // Get debts
+        const balanceStatementsResponse = await axios.get(
+          config.BACKEND_URL + "/users/debts",
+          {
+            headers: utils.getJwtHeader(cookie.load("jwtToken")),
+          }
+        );
+        // Get total balance
+        const balanceResponse = await axios.get(
+          config.BACKEND_URL + "/users/balance",
+          {
+            headers: utils.getJwtHeader(cookie.load("jwtToken")),
+          }
+        );
+        const youAreOwed = balanceStatementsResponse.data.youAreOwed;
+        const youOwe = balanceStatementsResponse.data.youOwe;
+
+        action.payload = {
+          youOwe,
+          youAreOwed,
+          doYouOweFlag: !utils.isEmpty(youOwe),
+          areYouOwedFlag: !utils.isEmpty(youAreOwed),
+          youOweTotal: balanceResponse.data.owe
+            ? balanceResponse.data.owe
+            : action.payload.symbol + "0.00",
+          youGetTotal: balanceResponse.data.get
+            ? balanceResponse.data.get
+            : action.payload.symbol + "0.00",
+          totalBalance: balanceResponse.data.total
+            ? balanceResponse.data.total
+            : action.payload.symbol + "0.00",
         };
       } else {
         console.log("Inside middleware else");

@@ -6,6 +6,8 @@ import axios from "axios";
 import Select from "react-select";
 import Lottie from "react-lottie";
 import * as loading from "../../animations/196-material-wave-loading.json";
+import { connect } from "react-redux";
+import { settleUp } from "../../redux/actions/dashboard";
 
 const loadingOptions = {
   loop: true,
@@ -83,39 +85,53 @@ class SettleUp extends Component {
       isDisabled: true,
       isLoading: true,
     });
-    try {
-      const response = await axios.post(
-        config.BACKEND_URL + "/users/settle",
-        { _id: this.state.selectedUserId },
-        {
-          headers: utils.getJwtHeader(cookie.load("jwtToken")),
-        }
-      );
-      if (response.status === 200) {
-        this.setState({
-          isLoading: false,
-        });
-        window.location.reload();
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        this.setState({
-          tokenState: false,
-        });
-      } else if (error.response && error.response.status === 400) {
-        this.setState({
-          error: true,
-          errorMessage: error.response.data.errorMessage,
-        });
-      } else {
-        console.log(error);
-      }
-      // Enabling the submit form button for settle up
-      this.setState({
-        isDisabled: false,
-        isLoading: false,
-      });
-    }
+
+    // settle up
+    this.props.settleUp({
+      selectedUserId: this.state.selectedUserId,
+      symbol: this.props.symbol,
+    });
+
+    // close pop up
+    this.setState({
+      isDisabled: false,
+      isLoading: false,
+    });
+
+    this.props.closePopUp();
+    // try {
+    //   const response = await axios.post(
+    //     config.BACKEND_URL + "/users/settle",
+    //     { _id: this.state.selectedUserId },
+    //     {
+    //       headers: utils.getJwtHeader(cookie.load("jwtToken")),
+    //     }
+    //   );
+    //   if (response.status === 200) {
+    //     this.setState({
+    //       isLoading: false,
+    //     });
+    //     window.location.reload();
+    //   }
+    // } catch (error) {
+    //   if (error.response && error.response.status === 401) {
+    //     this.setState({
+    //       tokenState: false,
+    //     });
+    //   } else if (error.response && error.response.status === 400) {
+    //     this.setState({
+    //       error: true,
+    //       errorMessage: error.response.data.errorMessage,
+    //     });
+    //   } else {
+    //     console.log(error);
+    //   }
+    //   // Enabling the submit form button for settle up
+    //   this.setState({
+    //     isDisabled: false,
+    //     isLoading: false,
+    //   });
+    // }
   };
 
   render() {
@@ -219,4 +235,14 @@ class SettleUp extends Component {
   }
 }
 
-export default SettleUp;
+const mapStateToProps = (state) => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    settleUp: (data) => dispatch(settleUp(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettleUp);

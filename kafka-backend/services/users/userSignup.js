@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { capitalizeFirstLetter } = require("../../helpers/utils");
 const models = require("../../models/modelsStore");
 const config = require("../../configuration/config");
 
@@ -25,8 +26,14 @@ const handle_request = async (req, callback) => {
     const jwtToken = jwt.sign(user.toJSON(), config.jwtSecretKey, {
       expiresIn: config.jwtExpiryTime,
     });
+    const response = {
+      currencyId: user.currencyId,
+      timezone: user.timezone,
+      language: user.language,
+      name: capitalizeFirstLetter(user.name),
+    };
     callback(null, {
-      user,
+      user: response,
       token: jwtToken,
       message: "Signed up successfully.",
       success: true,

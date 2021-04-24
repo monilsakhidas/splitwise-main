@@ -4,6 +4,7 @@ import groupInfoReducer from "./groupInfoReducer";
 import editGroupReducer from "./editGroupReducer";
 import groupDetailsReducer from "./groupDetailsReducer";
 import recentActivityReducer from "./recentActivityReducer";
+import dashboardReducer from "./dashboardReducer";
 
 export default combineReducers({
   userProfileReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   editGroupReducer,
   groupDetailsReducer,
   recentActivityReducer,
+  dashboardReducer,
 });

@@ -7,6 +7,7 @@ import Modal from "react-modal";
 import SettleUp from "../Users/SettleUp";
 import defaultProfileImage from "../../images/profile_placeholder.jpg";
 import { connect } from "react-redux";
+import { getDashboardBalance } from "../../redux/actions/dashboard";
 
 const customStyles = {
   content: {
@@ -26,13 +27,6 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       tokenState: utils.isJWTValid(cookie.load("jwtToken"))[0],
-      areYouOwedFlag: false,
-      doYouOweFlag: false,
-      youOweTotal: "",
-      youGetTotal: "",
-      totalBalance: "",
-      youOwe: {},
-      doYouOwe: {},
       isPopUpOpen: false,
     };
   }
@@ -44,56 +38,59 @@ class Dashboard extends Component {
   };
 
   async componentDidMount() {
-    try {
-      // Get currency
-      // const currencyResponse = await axios.get(
-      //   config.BACKEND_URL + "/users/currency",
-      //   {
-      //     headers: utils.getJwtHeader(cookie.load("jwtToken")),
-      //   }
-      // );
+    // try {
+    // Get currency
+    // const currencyResponse = await axios.get(
+    //   config.BACKEND_URL + "/users/currency",
+    //   {
+    //     headers: utils.getJwtHeader(cookie.load("jwtToken")),
+    //   }
+    // );
 
-      // Get debts
-      const balanceStatementsResponse = await axios.get(
-        config.BACKEND_URL + "/users/debts",
-        {
-          headers: utils.getJwtHeader(cookie.load("jwtToken")),
-        }
-      );
+    // Get debts
+    // const balanceStatementsResponse = await axios.get(
+    //   config.BACKEND_URL + "/users/debts",
+    //   {
+    //     headers: utils.getJwtHeader(cookie.load("jwtToken")),
+    //   }
+    // );
 
-      // Get total balance
-      const balanceResponse = await axios.get(
-        config.BACKEND_URL + "/users/balance",
-        {
-          headers: utils.getJwtHeader(cookie.load("jwtToken")),
-        }
-      );
+    // // Get total balance
+    // const balanceResponse = await axios.get(
+    //   config.BACKEND_URL + "/users/balance",
+    //   {
+    //     headers: utils.getJwtHeader(cookie.load("jwtToken")),
+    //   }
+    // );
 
-      const youAreOwed = balanceStatementsResponse.data.youAreOwed;
-      const youOwe = balanceStatementsResponse.data.youOwe;
-      this.setState({
-        youOwe,
-        youAreOwed,
-        doYouOweFlag: !utils.isEmpty(youOwe),
-        areYouOwedFlag: !utils.isEmpty(youAreOwed),
-        youOweTotal: balanceResponse.data.owe
-          ? balanceResponse.data.owe
-          : this.props.currency.symbol + "0.00",
-        youGetTotal: balanceResponse.data.get
-          ? balanceResponse.data.get
-          : this.props.currency.symbol + "0.00",
-        totalBalance: balanceResponse.data.total
-          ? balanceResponse.data.total
-          : this.props.currency.symbol + "0.00",
-      });
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        this.setState({
-          tokenState: false,
-        });
-        console.log(error.response);
-      }
-    }
+    // const youAreOwed = balanceStatementsResponse.data.youAreOwed;
+    // const youOwe = balanceStatementsResponse.data.youOwe;
+    // this.setState({
+    //   youOwe,
+    //   youAreOwed,
+    //   doYouOweFlag: !utils.isEmpty(youOwe),
+    //   areYouOwedFlag: !utils.isEmpty(youAreOwed),
+    //   youOweTotal: balanceResponse.data.owe
+    //     ? balanceResponse.data.owe
+    //     : this.props.currency.symbol + "0.00",
+    //   youGetTotal: balanceResponse.data.get
+    //     ? balanceResponse.data.get
+    //     : this.props.currency.symbol + "0.00",
+    //   totalBalance: balanceResponse.data.total
+    //     ? balanceResponse.data.total
+    //     : this.props.currency.symbol + "0.00",
+    // });
+    // } catch (error) {
+    //   if (error.response && error.response.status === 401) {
+    //     this.setState({
+    //       tokenState: false,
+    //     });
+    //     console.log(error.response);
+    //   }
+    // }
+    console.log("IN COMPONENET DID MOUNT");
+    this.props.getDashboardBalance({ symbol: this.props.currency.symbol });
+    console.log("IN COMPONENET DID MOUNT");
   }
 
   render() {
@@ -104,7 +101,7 @@ class Dashboard extends Component {
       let youAreOwed = null;
 
       // YOU OWE HTML
-      if (!this.state.doYouOweFlag) {
+      if (!this.props.doYouOweFlag) {
         youOwe = (
           <div className="row">
             <div style={{ margin: "170px" }}>
@@ -114,8 +111,8 @@ class Dashboard extends Component {
         );
       } else {
         youOwe = [];
-        for (let key in this.state.youOwe) {
-          const statementList = this.state.youOwe[key].statements.map(
+        for (let key in this.props.youOwe) {
+          const statementList = this.props.youOwe[key].statements.map(
             (statement) => {
               return (
                 <li>
@@ -141,10 +138,10 @@ class Dashboard extends Component {
                         marginLeft: "16px",
                       }}
                       src={
-                        this.state.youOwe[key].image == null
+                        this.props.youOwe[key].image == null
                           ? utils.getProfileImageUrl()
                           : utils.getProfileImageUrl(
-                              this.state.youOwe[key].image
+                              this.props.youOwe[key].image
                             )
                       }
                       onError={(e) => {
@@ -155,13 +152,13 @@ class Dashboard extends Component {
                   </div>
                   <div class="card-body">
                     <div style={{ fontSize: "x-large" }}>
-                      {this.state.youOwe[key].name}
+                      {this.props.youOwe[key].name}
                     </div>
                     <div style={{ color: "orange" }}>
                       <text class="card-title">
                         you owe{" "}
                         {utils.getFormattedAmount(
-                          Object.values(this.state.youOwe[key].amount)
+                          Object.values(this.props.youOwe[key].amount)
                         )}
                       </text>
                     </div>
@@ -182,7 +179,7 @@ class Dashboard extends Component {
       }
 
       // YOU ARE OWED HTML
-      if (!this.state.areYouOwedFlag) {
+      if (!this.props.areYouOwedFlag) {
         youAreOwed = (
           <div className="row">
             <div style={{ margin: "170px" }}>
@@ -192,8 +189,8 @@ class Dashboard extends Component {
         );
       } else {
         youAreOwed = [];
-        for (let key in this.state.youAreOwed) {
-          const statementList = this.state.youAreOwed[key].statements.map(
+        for (let key in this.props.youAreOwed) {
+          const statementList = this.props.youAreOwed[key].statements.map(
             (statement) => {
               return (
                 <li>
@@ -219,10 +216,10 @@ class Dashboard extends Component {
                         marginLeft: "16px",
                       }}
                       src={
-                        this.state.youAreOwed[key].image == null
+                        this.props.youAreOwed[key].image == null
                           ? utils.getProfileImageUrl()
                           : utils.getProfileImageUrl(
-                              this.state.youAreOwed[key].image
+                              this.props.youAreOwed[key].image
                             )
                       }
                       onError={(e) => {
@@ -233,13 +230,13 @@ class Dashboard extends Component {
                   </div>
                   <div class="card-body">
                     <div style={{ fontSize: "x-large" }}>
-                      {this.state.youAreOwed[key].name}
+                      {this.props.youAreOwed[key].name}
                     </div>
                     <div style={{ color: "#5BC5A7" }}>
                       <text class="card-title">
                         owes you{" "}
                         {utils.getFormattedAmount(
-                          Object.values(this.state.youAreOwed[key].amount)
+                          Object.values(this.props.youAreOwed[key].amount)
                         )}
                       </text>
                     </div>
@@ -303,7 +300,10 @@ class Dashboard extends Component {
                         isOpen={this.state.isPopUpOpen}
                         ariaHideApp={false}
                       >
-                        <SettleUp closePopUp={this.togglePopUp} />
+                        <SettleUp
+                          closePopUp={this.togglePopUp}
+                          symbol={this.props.currency.symbol}
+                        />
                       </Modal>
                     </div>
                   </div>
@@ -325,7 +325,7 @@ class Dashboard extends Component {
                   </div>
                   <div className="row">
                     <div style={{ paddingTop: "0px", paddingLeft: "140px" }}>
-                      <small>{this.state.totalBalance}</small>
+                      <small>{this.props.totalBalance}</small>
                     </div>
                   </div>
                 </div>
@@ -349,7 +349,7 @@ class Dashboard extends Component {
                         color: "#FF652F",
                       }}
                     >
-                      <small>{this.state.youOweTotal}</small>
+                      <small>{this.props.youOweTotal}</small>
                     </div>
                   </div>
                 </div>
@@ -367,7 +367,7 @@ class Dashboard extends Component {
                         color: "#5BC5A7",
                       }}
                     >
-                      <small>{this.state.youGetTotal}</small>
+                      <small>{this.props.youGetTotal}</small>
                     </div>
                   </div>
                 </div>
@@ -411,7 +411,20 @@ class Dashboard extends Component {
 const mapStateToProps = (state) => {
   return {
     currency: state.userProfileReducer.loggedInUser.currency,
+    areYouOwedFlag: state.dashboardReducer.areYouOwedFlag,
+    doYouOweFlag: state.dashboardReducer.doYouOweFlag,
+    youOweTotal: state.dashboardReducer.youOweTotal,
+    youGetTotal: state.dashboardReducer.youGetTotal,
+    totalBalance: state.dashboardReducer.totalBalance,
+    youOwe: state.dashboardReducer.youOwe,
+    doYouOwe: state.dashboardReducer.doYouOwe,
   };
 };
 
-export default connect(mapStateToProps, null)(Dashboard);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getDashboardBalance: (data) => dispatch(getDashboardBalance(data)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

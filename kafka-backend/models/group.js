@@ -9,7 +9,7 @@ const groupSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      lowercase: true,
+      lowercase: false,
       unique: true,
     },
     image: {
