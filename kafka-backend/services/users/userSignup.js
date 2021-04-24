@@ -31,6 +31,7 @@ const handle_request = async (req, callback) => {
       timezone: user.timezone,
       language: user.language,
       name: capitalizeFirstLetter(user.name),
+      email: user.email,
     };
     callback(null, {
       user: response,
