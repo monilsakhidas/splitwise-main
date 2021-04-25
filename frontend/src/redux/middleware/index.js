@@ -298,14 +298,11 @@ export function splitwiseMiddleware({ dispatch }) {
             config.BACKEND_URL + "/groups/debts/" + action.payload.group_id,
             { headers: utils.getJwtHeader(cookie.load("jwtToken")) }
           );
-
-          console.log("ADTEr CALLING ALL THE APIS");
           action.payload = {
             expenses: response.data.expense,
             balances: groupBalanceResponse.data.groupBalances,
             loans: groupDebtsResponse.data.loans,
           };
-          console.log(action.payload);
         } catch (error) {
           console.log(error);
         }

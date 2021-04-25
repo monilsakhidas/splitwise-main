@@ -63,7 +63,6 @@ const userProfileReducer = (state = initialState, action) => {
     }
   } else if (action.type === LOGOUT) {
     return {
-      ...state,
       jwtToken: null,
       loggedInUser: {
         _id: null,
