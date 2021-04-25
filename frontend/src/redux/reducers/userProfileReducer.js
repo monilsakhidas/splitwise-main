@@ -62,6 +62,8 @@ const userProfileReducer = (state = initialState, action) => {
       };
     }
   } else if (action.type === LOGOUT) {
+    //localStorage.removeItem("state");
+    console.log("INSIDE USER PROFILE LOGUt REDUCEr");
     return {
       jwtToken: null,
       loggedInUser: {

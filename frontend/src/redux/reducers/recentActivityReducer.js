@@ -1,4 +1,4 @@
-import { GET_RECENT_ACTIVITY } from "../constants/actionTypes";
+import { GET_RECENT_ACTIVITY, LOGOUT } from "../constants/actionTypes";
 
 const initialState = {
   activities: [],
@@ -10,6 +10,11 @@ const recentActivityReducer = (state = initialState, action) => {
     return {
       ...state,
       ...action.payload,
+    };
+  } else if (action.type === LOGOUT) {
+    return {
+      activities: [],
+      totalPages: 0,
     };
   }
   return state;

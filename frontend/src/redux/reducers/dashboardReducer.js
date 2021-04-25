@@ -1,4 +1,8 @@
-import { GET_DASHBOARD_BALANCE, SETTLE_UP } from "../constants/actionTypes";
+import {
+  GET_DASHBOARD_BALANCE,
+  SETTLE_UP,
+  LOGOUT,
+} from "../constants/actionTypes";
 
 const initialState = {
   areYouOwedFlag: false,
@@ -32,6 +36,16 @@ const dashboardReducer = (state = initialState, action) => {
       youOweTotal: action.payload.youOweTotal,
       youGetTotal: action.payload.youGetTotal,
       totalBalance: action.payload.totalBalance,
+    };
+  } else if (action.type === LOGOUT) {
+    return {
+      areYouOwedFlag: false,
+      doYouOweFlag: false,
+      youOweTotal: "",
+      youGetTotal: "",
+      totalBalance: "",
+      youOwe: {},
+      youAreOwed: {},
     };
   }
   return state;

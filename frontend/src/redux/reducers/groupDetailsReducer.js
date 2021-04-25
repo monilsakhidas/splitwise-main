@@ -4,6 +4,7 @@ import {
   DELETE_COMMENT,
   GET_GROUP_DETAILS,
   SET_ERROR_ADD_COMMENT,
+  LOGOUT,
 } from "../constants/actionTypes";
 import utils from "../../utils/utils";
 
@@ -77,6 +78,16 @@ const groupDetailsReducer = (state = initialState, action) => {
       ...state,
       error: action.payload.error,
       errorMessage: action.payload.errorMessage,
+    };
+  } else if (action.type === LOGOUT) {
+    return {
+      _id: null,
+      name: null,
+      groupBalances: [],
+      groupExpenses: [],
+      groupDebts: [],
+      error: null,
+      errorMessage: null,
     };
   }
   return state;

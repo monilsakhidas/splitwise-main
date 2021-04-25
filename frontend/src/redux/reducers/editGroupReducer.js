@@ -1,4 +1,8 @@
-import { EDIT_GROUP, SET_ERROR_EDIT_GROUP } from "../constants/actionTypes";
+import {
+  EDIT_GROUP,
+  SET_ERROR_EDIT_GROUP,
+  LOGOUT,
+} from "../constants/actionTypes";
 
 const initialState = {
   _id: null,
@@ -34,6 +38,14 @@ const editGroupReducer = (state = initialState, action) => {
       ...state,
       error: action.payload.error,
       errorMessage: action.payload.errorMessage,
+    };
+  } else if (action.type === LOGOUT) {
+    return {
+      _id: null,
+      name: null,
+      image: null,
+      error: null,
+      errorMessage: null,
     };
   }
   return state;

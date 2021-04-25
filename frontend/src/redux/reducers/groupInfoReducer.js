@@ -2,6 +2,7 @@ import {
   CREATE_GROUP,
   EDIT_GROUP,
   SET_ERROR_GROUP_INFO,
+  LOGOUT,
 } from "../constants/actionTypes";
 import utils from "../../utils/utils";
 
@@ -43,6 +44,15 @@ const groupInfoReducer = (state = initialState, action) => {
       ...state,
       error: action.payload.error,
       errorMessage: action.payload.errorMessage,
+    };
+  } else if (action.type === LOGOUT) {
+    return {
+      _id: null,
+      name: null,
+      members: null,
+      image: null,
+      error: null,
+      errorMessage: null,
     };
   }
   return state;

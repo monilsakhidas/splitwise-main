@@ -280,7 +280,6 @@ export function splitwiseMiddleware({ dispatch }) {
         }
       } else if (action.type === ADD_EXPENSE) {
         try {
-          console.log("INSIDE ADD EXPENSE");
           const response = await axios.post(
             config.BACKEND_URL + "/groups/addexpense",
             action.payload,
