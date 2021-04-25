@@ -383,7 +383,7 @@ router.post("/addcomment", requireSignIn, async (req, res) => {
     comment: Joi.string()
       .max(1024)
       .required()
-      .pattern(/[$\\<>?!.()]/, { invert: true })
+      // .pattern(/[$\\<>?!.()]/, { invert: true })
       .messages({
         "any.required": "Enter a valid comment.",
         "string.base": "Enter a valid comment.",
